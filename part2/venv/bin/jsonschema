@@ -1,4 +1,4 @@
-#!/home/dorian/holbertonschool-hbnb-1/part2/venv/bin/python3
+#!/home/dorian/holbertonschool-hbnb/part2/venv/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys

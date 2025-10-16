@@ -64,7 +64,7 @@ class PlaceResource(Resource):
     @api.response(404, 'Place not found')
     def get(self, place_id):
         """Get place details by ID"""
-          place = facade.get_place(place_id)
+        place = facade.get_place(place_id)
         if not place:
             return {"error": "Place not found"}, 404
         return place.to_json(), 200
@@ -75,7 +75,7 @@ class PlaceResource(Resource):
     @api.response(400, 'Invalid input data')
     def put(self, place_id):
         """Update a place's information"""
-         try:
+        try:
             data = request.get_json()
             updated_place = facade.update_place(place_id, data)
             if not updated_place:
