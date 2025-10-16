@@ -1,5 +1,6 @@
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
+from flask import request
 
 api = Namespace('places', description='Place operations')
 
@@ -42,14 +43,20 @@ class PlaceList(Resource):
     @api.response(400, 'Invalid input data')
     def post(self):
         """Register a new place"""
-        # Placeholder for the logic to register a new place
-        pass
+        try:
+            data = request.get_json()
+            place = facade.create_place(data)
+            if not place:
+                return {"error": "Place could not be created"}, 400
+            return place.to_json(), 201
+        except Exception as e:
+            return {"error": str(e)}, 400
 
     @api.response(200, 'List of places retrieved successfully')
     def get(self):
         """Retrieve a list of all places"""
-        # Placeholder for logic to return a list of all places
-        pass
+        places = facade.get_all_places()
+        return [p.to_json() for p in places], 200
 
 @api.route('/<place_id>')
 class PlaceResource(Resource):
@@ -57,8 +64,10 @@ class PlaceResource(Resource):
     @api.response(404, 'Place not found')
     def get(self, place_id):
         """Get place details by ID"""
-        # Placeholder for the logic to retrieve a place by ID, including associated owner and amenities
-        pass
+          place = facade.get_place(place_id)
+        if not place:
+            return {"error": "Place not found"}, 404
+        return place.to_json(), 200
 
     @api.expect(place_model)
     @api.response(200, 'Place updated successfully')
@@ -66,5 +75,11 @@ class PlaceResource(Resource):
     @api.response(400, 'Invalid input data')
     def put(self, place_id):
         """Update a place's information"""
-        # Placeholder for the logic to update a place by ID
-        pass
+         try:
+            data = request.get_json()
+            updated_place = facade.update_place(place_id, data)
+            if not updated_place:
+                return {"error": "Place not found"}, 404
+            return updated_place.to_json(), 200
+        except Exception as e:
+            return {"error": str(e)}, 400

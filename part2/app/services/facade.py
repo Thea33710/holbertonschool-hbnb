@@ -1,5 +1,7 @@
 from app.models.amenity import Amenity
 from app.models.user import User
+from app.models.review import Review
+from app.models.place import Place
 from app.persistence.repository import InMemoryRepository
 
 
@@ -73,25 +75,54 @@ class HBnBFacade:
         pass
 
     def create_review(self, review_data):
-        # Placeholder for logic to create a review, including validation for user_id, place_id, and rating
-        pass
+        user = self.get_user(review_data.get("user_id"))
+        place = self.get_place(review_data.get("place_id"))
+    
+        if not user or not place:
+            raise ValueError("Invalid user_id or place_id")
+
+        review = Review(
+            text=review_data["text"],
+            rating=review_data["rating"],
+            user=user,
+            place=place
+        )
+        return review
 
     def get_review(self, review_id):
-        # Placeholder for logic to retrieve a review by ID
-        pass
+        for review in Review.all_reviews:
+            if review.id == review_id:
+                return review
+        return None
 
     def get_all_reviews(self):
-        # Placeholder for logic to retrieve all reviews
-        pass
+        return Review.all_reviews
 
     def get_reviews_by_place(self, place_id):
-        # Placeholder for logic to retrieve all reviews for a specific place
-        pass
+        place = self.get_place(place_id)
+        if not place:
+            return None
+        return place.reviews
 
     def update_review(self, review_id, review_data):
-        # Placeholder for logic to update a review
-        pass
+        review = self.get_review(review_id)
+        if not review:
+            return None
+
+        if "text" in review_data:
+            review.text = review_data["text"]
+        if "rating" in review_data:
+            review.rating = review_data["rating"]
+
+        return review
 
     def delete_review(self, review_id):
-        # Placeholder for logic to delete a review
-        pass
+        review = self.get_review(review_id)
+        if not review:
+            return False
+
+        if review.place and review in review.place.reviews:
+            review.place.reviews.remove(review)
+
+        Review.all_reviews.remove(review)
+        return True
