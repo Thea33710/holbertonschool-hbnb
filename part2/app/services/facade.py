@@ -52,7 +52,7 @@ class HBnBFacade:
         for key, value in new_data.items():
             setattr(amenity, key, value)
 
-        self.amenity_repo.update(amenity_id, amenity)
+        self.amenity_repo.update(amenity_id, amenity.to_json())
         
         return amenity
 
