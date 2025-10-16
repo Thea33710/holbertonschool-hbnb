@@ -16,3 +16,10 @@ class Amenity(BaseModel):
             )
 
         self.name = name
+
+def to_dict(self):
+        """Return a dictionary representation of the Amenity."""
+        return {
+            "id": self.id,
+            "name": self.name
+        }

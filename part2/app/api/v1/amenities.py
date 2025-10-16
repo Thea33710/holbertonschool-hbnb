@@ -37,7 +37,7 @@ class AmenityResource(Resource):
         return amenity.to_dict(), 200
 
 
-    @api.expect(amenity_model)
+    @api.expect(amenity_model, validate=True)
     @api.response(200, 'Amenity updated successfully')
     @api.response(404, 'Amenity not found')
     @api.response(400, 'Invalid input data')
