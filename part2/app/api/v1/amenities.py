@@ -15,15 +15,15 @@ class AmenityList(Resource):
     @api.response(400, 'Invalid input data')
     def post(self):
         """Create a new amenity"""
-        data = api.payload
-        amenity = facade.create_amenity(data)
-        return amenity.to_dict(), 201
+        amenity_data = api.payload
+        amenity = facade.create_amenity(amenity_data)
+        return {'id': amenity.id, 'name': amenity.name}, 201
 
     @api.response(200, 'List of amenities retrieved successfully')
     def get(self):
         """Get all amenities"""
         amenities = facade.get_all_amenities()
-        return [a.to_dict() for a in amenities], 200
+        return [a.to_json() for a in amenities], 200
 
 @api.route('/<amenity_id>')
 class AmenityResource(Resource):
@@ -34,7 +34,7 @@ class AmenityResource(Resource):
         amenity = facade.get_amenity(amenity_id)
         if not amenity:
             api.abort(404, "Amenity not found")
-        return amenity.to_dict(), 200
+        return amenity.to_json(), 200
 
 
     @api.expect(amenity_model, validate=True)
@@ -42,9 +42,13 @@ class AmenityResource(Resource):
     @api.response(404, 'Amenity not found')
     @api.response(400, 'Invalid input data')
     def put(self, amenity_id):
-        """Update an amenity"""
+        """Update an amenity's information"""
         data = api.payload
+        if not data:
+            return {'error': 'Invalid input data'}, 400
+
         amenity = facade.update_amenity(amenity_id, data)
         if not amenity:
-            api.abort(404, "Amenity not found")
-        return amenity.to_dict(), 200
+            return {'error': 'Amenity not found'}, 404
+
+        return amenity.to_json(), 200

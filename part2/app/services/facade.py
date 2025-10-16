@@ -51,7 +51,9 @@ class HBnBFacade:
             return None
         for key, value in new_data.items():
             setattr(amenity, key, value)
+
         self.amenity_repo.update(amenity_id, amenity)
+        
         return amenity
 
     def create_place(self, place_data):

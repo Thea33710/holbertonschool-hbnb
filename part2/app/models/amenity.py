@@ -9,16 +9,22 @@ class Amenity(BaseModel):
         """Constructor of the Amenity class."""
         super().__init__()
 
-        if not name or not isinstance(name, str) or len(name) > 50:
+        self.name = name
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        if not value or not isinstance(value, str) or len(value) > 50:
             raise ValueError(
                 "Amenity name must be a non-empty string "
                 + "of maximum 50 characteres."
             )
+        self._name = value
 
-        self.name = name
-
-def to_dict(self):
-        """Return a dictionary representation of the Amenity."""
+    def to_json(self):
         return {
             "id": self.id,
             "name": self.name
