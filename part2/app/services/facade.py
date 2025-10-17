@@ -104,18 +104,9 @@ class HBnBFacade:
             return None
 
         for key, value in new_data.items():
-            if key == "amenities":
-                amenities = []
-                for amenity_id in value:
-                    amenity = self.amenity_repo.get(amenity_id)
-                    if amenity:
-                        amenities.append(amenity)
-                setattr(place, "amenities", amenities)
+            setattr(place, key, value)
 
-            elif hasattr(place, key):
-                setattr(place, key, value)
-
-        self.place_repo.update(place_id, place)
+        self.place_repo.update(place)
         return place
 
     def create_review(self, review_data):
