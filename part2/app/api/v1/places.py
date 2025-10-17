@@ -84,10 +84,12 @@ class PlaceResource(Resource):
     def put(self, place_id):
         """Update a place's information"""
         try:
-            data = api.payload
+            data = request.get_json()
             updated_place = facade.update_place(place_id, data)
             if not updated_place:
                 return {"error": "Place not found"}, 404
             return updated_place.to_json(), 200
-        except Exception as e:
+        except (ValueError, TypeError) as e:
             return {"error": str(e)}, 400
+        except Exception as e:
+            return {"error": "Unexpected error: " + str(e)}, 500
