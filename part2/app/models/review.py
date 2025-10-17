@@ -1,6 +1,4 @@
 from app.models.base_model import BaseModel
-from app.models.place import Place
-from app.models.user import User
 
 """Review model definition."""
 
@@ -17,6 +15,7 @@ class Review(BaseModel):
         self.rating = rating
         self.place = place
         self.user = user
+        self.place.add_review(self)
 
         Review.all_reviews.append(self)
 
@@ -50,6 +49,7 @@ class Review(BaseModel):
 
     @place.setter
     def place(self, value):
+        from app.models.place import Place
         if not isinstance(value, Place):
             raise TypeError("Place must be a valid Place instance.")
         if value not in Place.all_places:
@@ -62,6 +62,7 @@ class Review(BaseModel):
 
     @user.setter
     def user(self, value):
+        from app.models.user import User
         if not isinstance(value, User):
             raise TypeError("User must be a valid User instance.")
         if value not in User.all_users:

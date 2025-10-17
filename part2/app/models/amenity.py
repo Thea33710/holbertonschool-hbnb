@@ -5,11 +5,16 @@ from app.models.base_model import BaseModel
 
 class Amenity(BaseModel):
     """The amenity class based on the BaseModel."""
+    all_amenities = []
+
     def __init__(self, name):
         """Constructor of the Amenity class."""
         super().__init__()
+        if any(a.name == name for a in Amenity.all_amenities):
+            raise ValueError(f"Amenity '{name}' already exists.")
 
         self.name = name
+        Amenity.all_amenities.append(self)
 
     @property
     def name(self):

@@ -15,9 +15,14 @@ class AmenityList(Resource):
     @api.response(400, 'Invalid input data')
     def post(self):
         """Create a new amenity"""
-        amenity_data = api.payload
-        amenity = facade.create_amenity(amenity_data)
-        return {'id': amenity.id, 'name': amenity.name}, 201
+        try:
+            amenity_data = api.payload
+            if not amenity_data.get('name') or not amenity_data['name'].strip():
+                return {'error': 'Amenity name cannot be empty'}, 400
+            amenity = facade.create_amenity(amenity_data)
+            return amenity.to_json(), 201
+        except Exception as e:
+            return {'error': str(e)}, 400
 
     @api.response(200, 'List of amenities retrieved successfully')
     def get(self):

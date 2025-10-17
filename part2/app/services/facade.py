@@ -36,9 +36,17 @@ class HBnBFacade:
     def get_user_by_email(self, email):
         return self.user_repo.get_by_attribute('email', email)
 
-    def create_amenity(self, amenity_data):
-        amenity = Amenity(**amenity_data)
-        self.amenity_repo.add(amenity)
+    def create_amenity(self, data):
+        name = data.get("name")
+        if not name or not isinstance(name, str) or len(name) > 50:
+            raise ValueError("Amenity name must be a non-empty string of max 50 chars")
+    
+        # Vérifier si déjà existant
+        if any(a.name == name for a in self.amenity_repo.get_all()):
+            raise ValueError("Amenity already exists")
+    
+        amenity = Amenity(name=name)
+        self.amenity_repo.add(amenity)  # AJOUTER DANS LE REPOSITORY
         return amenity
 
     def get_amenity(self, amenity_id):
@@ -100,11 +108,11 @@ class HBnBFacade:
                 amenities = []
                 for amenity_id in value:
                     amenity = self.amenity_repo.get(amenity_id)
-                if amenity:
-                    amenities.append(amenity)
-                    setattr(place, key, amenities)
-                else:
-                    setattr(place, key, value)
+                    if amenity:
+                        amenities.append(amenity)
+                        setattr(place, key, amenities)
+                    else:
+                        setattr(place, key, value)
 
         self.place_repo.update(place_id, place)
         return place

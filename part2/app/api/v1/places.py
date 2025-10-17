@@ -45,6 +45,14 @@ class PlaceList(Resource):
         """Register a new place"""
         try:
             data = request.get_json()
+
+            if data.get('price', 0) <= 0:
+                return {"error": "Price must be greater than zero"}, 400
+            if not -90 <= data.get('latitude', 0) <= 90 or not -180 <= data.get('longitude', 0) <= 180:
+                return {"error": "Invalid latitude or longitude"}, 400
+            if not data.get('amenities'):
+                return {"error": "At least one amenity must be provided"}, 400
+
             place = facade.create_place(data)
             if not place:
                 return {"error": "Place could not be created"}, 400

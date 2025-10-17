@@ -1,5 +1,7 @@
 from app.models.base_model import BaseModel
 from app.models.user import User
+from app.models.amenity import Amenity
+from app.models.review import Review
 
 """Place model definition."""
 
@@ -107,11 +109,3 @@ class Place(BaseModel):
             "amenities": [a.to_json() for a in self.amenities],
             "reviews": [r.to_json() for r in self.reviews]
         }
-
-    def add_review(self, review):
-        """Add a review to the place."""
-        self.reviews.append(review)
-
-    def add_amenity(self, amenity):
-        """Add an amenity to the place."""
-        self.amenities.append(amenity)

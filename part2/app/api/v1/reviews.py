@@ -54,7 +54,7 @@ class ReviewResource(Resource):
             updated = facade.update_review(review_id, data)
             if not updated:
                 return {"error": "Review not found"}, 404
-            return updated.to_json, 200
+            return updated.to_json(), 200
         except Exception as e:
             return {"error": str(e)}, 400
 
