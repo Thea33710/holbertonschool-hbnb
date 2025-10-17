@@ -110,9 +110,10 @@ class HBnBFacade:
                     amenity = self.amenity_repo.get(amenity_id)
                     if amenity:
                         amenities.append(amenity)
-                        setattr(place, key, amenities)
-                    else:
-                        setattr(place, key, value)
+                setattr(place, "amenities", amenities)
+
+            elif hasattr(place, key):
+                setattr(place, key, value)
 
         self.place_repo.update(place_id, place)
         return place
