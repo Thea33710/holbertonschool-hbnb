@@ -7,7 +7,8 @@ api = Namespace('users', description='User operations')
 user_model = api.model('User', {
     'first_name': fields.String(required=True, description='First name of the user'),
     'last_name': fields.String(required=True, description='Last name of the user'),
-    'email': fields.String(required=True, description='Email of the user')
+    'email': fields.String(required=True, description='Email of the user'),
+    'password': fields.String(required=True, description='Password of the user', min_length=6)
 })
 
 @api.route('/')
@@ -27,10 +28,13 @@ class UserList(Resource):
 
         try:
             new_user = facade.create_user(user_data)
+            if 'password' in user_data:
+                new_user.hash_password(user_data['password'])
+            facade.save_user(new_user)
             return new_user.to_dict(), 201
         except Exception as e:
             return {'error': str(e)}, 400
-        
+
     @api.response(200, 'List of users retrieved successfully')
     def get(self):
         """Retrieve a list of users"""
