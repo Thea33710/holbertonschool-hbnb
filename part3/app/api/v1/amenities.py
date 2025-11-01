@@ -1,6 +1,6 @@
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
-
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 
 api = Namespace('amenities', description='Amenity operations')
 
@@ -10,12 +10,17 @@ amenity_model = api.model('Amenity', {
 })
 
 @api.route('/')
-class AmenityList(Resource):
+class AdminAmenityCreate(Resource):
     @api.expect(amenity_model)
     @api.response(201, 'Amenity successfully created')
     @api.response(400, 'Invalid input data')
+    @api.response(403, 'Admin privileges required')
+    @jwt_required()
     def post(self):
-        """Register a new amenity"""
+        current_user = get_jwt_identity()
+        if not current_user.get('is_admin'):
+            return {'error': 'Admin privileges required'}, 403
+
         amenity_data = api.payload
         
         existing_amenity = facade.amenity_repo.get_by_attribute('name', amenity_data.get('name'))
@@ -33,6 +38,37 @@ class AmenityList(Resource):
         amenities = facade.get_all_amenities()
         return [amenity.to_dict() for amenity in amenities], 200
 
+@api.route('/<amenity_id>')
+class AdminAmenityModify(Resource):
+    @api.expect(amenity_model)
+    @api.response(200, 'Amenity updated successfully')
+    @api.response(404, 'Amenity not found')
+    @api.response(400, 'Invalid input data')
+    @api.response(403, 'Admin privileges required')
+    @jwt_required()
+    def put(self, amenity_id):
+        current_user = get_jwt_identity()
+        if not current_user.get('is_admin'):
+            return {'error': 'Admin privileges required'}, 403
+
+        amenity_data = api.payload
+        amenity = facade.get_amenity(amenity_id)
+        if not amenity:
+            return {'error': 'Amenity not found'}, 404
+        try:
+            facade.update_amenity(amenity_id, amenity_data)
+            return {"message": "Amenity updated successfully"}, 200
+        except Exception as e:
+            return {'error': str(e)}, 400
+
+@api.route('/')
+class AmenityList(Resource):
+    @api.response(200, 'List of amenities retrieved successfully')
+    def get(self):
+        """Retrieve a list of all amenities"""
+        amenities = facade.get_all_amenities()
+        return [amenity.to_dict() for amenity in amenities], 200
+
 
 @api.route('/<amenity_id>')
 class AmenityResource(Resource):
@@ -44,18 +80,3 @@ class AmenityResource(Resource):
         if not amenity:
             return {'error': 'Amenity not found'}, 404
         return amenity.to_dict(), 200
-
-    @api.expect(amenity_model)
-    @api.response(200, 'Amenity updated successfully')
-    @api.response(404, 'Amenity not found')
-    @api.response(400, 'Invalid input data')
-    def put(self, amenity_id):
-        amenity_data = api.payload
-        amenity = facade.get_amenity(amenity_id)
-        if not amenity:
-            return {'error': 'Amenity not found'}, 404
-        try:
-            facade.update_amenity(amenity_id, amenity_data)
-            return {"message": "Amenity updated successfully"}, 200
-        except Exception as e:
-            return {'error': str(e)}, 400

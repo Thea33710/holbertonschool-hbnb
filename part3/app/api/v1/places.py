@@ -29,6 +29,34 @@ place_model = api.model('Place', {
     'amenities': fields.List(fields.String, required=True, description="List of amenities ID's")
 })
 
+@api.route('/<place_id>')
+class AdminPlaceModify(Resource):
+    @api.expect(place_model)
+    @api.response(200, 'Place updated successfully')
+    @api.response(404, 'Place not found')
+    @api.response(400, 'Invalid input data')
+    @api.response(403, 'Unauthorized action')
+    @jwt_required()
+    def put(self, place_id):
+        current_user = get_jwt_identity()
+
+        # Set is_admin default to False if not exists
+        is_admin = current_user.get('is_admin', False)
+        user_id = current_user.get('id')
+
+        place = facade.get_place(place_id)
+        if not is_admin and place.owner_id != user_id:
+            return {'error': 'Unauthorized action'}, 403
+
+        place_data = api.payload
+        if not place:
+            return {'error': 'Place not found'}, 404
+        try:
+            facade.update_place(place_id, place_data)
+            return {'message': 'Place updated successfully'}, 200
+        except Exception as e:
+            return {'error': str(e)}, 400
+
 @api.route('/')
 class PlaceList(Resource):
     @api.expect(place_model)
@@ -90,6 +118,24 @@ class PlaceResource(Resource):
         except Exception as e:
             return {'error': str(e)}, 400
 
+    @api.response(200, 'Place deleted successfully')
+    @api.response(404, 'Place not found')
+    @api.response(403, 'Unauthorized action')
+    @jwt_required()
+    def delete(self, place_id):
+        """Delete a Place"""
+        current_user = get_jwt_identity()
+        place = facade.get_place(place_id)
+        if not place:
+            return {'error': 'Place not found'}, 404
+        if not is_admin and place.owner_id != user_id:
+            return {'error': 'Unauthorized action'}, 403
+        try:
+            facade.delete_place(place_id)
+            return {'message': 'Place deleted successfully'}, 200
+        except Exception as e:
+            return {'error': str(e)}, 400
+
 @api.route('/<place_id>/amenities')
 class PlaceAmenities(Resource):
     @api.expect(amenity_model)
@@ -101,7 +147,7 @@ class PlaceAmenities(Resource):
         if not amenities_data or len(amenities_data) == 0:
             return {'error': 'Invalid input data'}, 400
         
-        place = facade.get_place(place_id)
+         or current_user != owner_id = facade.get_place(place_id)
         if not place:
             return {'error': 'Place not found'}, 404
         
