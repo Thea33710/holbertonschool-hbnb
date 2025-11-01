@@ -35,8 +35,8 @@ class UserList(Resource):
             new_user = facade.create_user(user_data)
             new_user.hash_password(password)
 
-            return {'id': new_user.id, 'message': 'User successfully created'}, 201
-            
+            return new_user.to_dict(), 201
+
         except Exception as e:
             return {'error': str(e)}, 400
 
