@@ -5,7 +5,7 @@ import re
 class User(BaseModel):
     emails = set()
 
-    def __init__(self, first_name, last_name, email, is_admin=False):
+    def __init__(self, first_name, last_name, email, password=None, is_admin=False, **kwargs):
         super().__init__()
         self.first_name = first_name
         self.last_name = last_name
@@ -13,7 +13,8 @@ class User(BaseModel):
         self.is_admin = is_admin
         self.places = []
         self.reviews = []
-        self.__password = None
+        if password:
+            self.hash_password(password)
     
     @property
     def first_name(self):

@@ -8,7 +8,7 @@ user_model = api.model('User', {
     'first_name': fields.String(required=True, description='First name of the user'),
     'last_name': fields.String(required=True, description='Last name of the user'),
     'email': fields.String(required=True, description='Email of the user'),
-    'password': fields.String(required=True, description='Password of the user', min_length=6)
+    'password': fields.String(required=True, description='Password of the user')
 })
 
 @api.route('/')
@@ -27,11 +27,16 @@ class UserList(Resource):
             return {'error': 'Email already registered'}, 409
 
         try:
-            new_user = facade.create_user(user_data)
             if 'password' in user_data:
-                new_user.hash_password(user_data['password'])
-            facade.save_user(new_user)
-            return new_user.to_dict(), 201
+                password = user_data.pop('password')  # Retirer le mot de passe du dict avant création
+            else:
+                return {'error': 'Password is required'}, 400
+
+            new_user = facade.create_user(user_data)
+            new_user.hash_password(password)
+
+            return {'id': new_user.id, 'message': 'User successfully created'}, 201
+            
         except Exception as e:
             return {'error': str(e)}, 400
 
