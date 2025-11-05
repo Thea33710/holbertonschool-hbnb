@@ -1,26 +1,34 @@
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
-
+from flask_jwt_extended import jwt_required, get_jwt, get_jwt_identity
 
 api = Namespace('amenities', description='Amenity operations')
 
-# Define the amenity model for input validation and documentation
 amenity_model = api.model('Amenity', {
     'name': fields.String(required=True, description='Name of the amenity')
 })
+
 
 @api.route('/')
 class AmenityList(Resource):
     @api.expect(amenity_model)
     @api.response(201, 'Amenity successfully created')
     @api.response(400, 'Invalid input data')
+    @jwt_required()
     def post(self):
-        """Register a new amenity"""
+        """Create a new amenity"""
+        jwt_data = get_jwt()
+        is_admin = jwt_data.get("is_admin", False)
+
+        if not is_admin:
+            return {'error': 'Admin privileges required'}, 403
+
         amenity_data = api.payload
-        
+
         existing_amenity = facade.amenity_repo.get_by_attribute('name', amenity_data.get('name'))
         if existing_amenity:
-            return {'error': 'Invalid input data'}, 400
+            return {'error': 'Amenity already exists'}, 400
+
         try:
             new_amenity = facade.create_amenity(amenity_data)
             return new_amenity.to_dict(), 201
@@ -49,11 +57,21 @@ class AmenityResource(Resource):
     @api.response(200, 'Amenity updated successfully')
     @api.response(404, 'Amenity not found')
     @api.response(400, 'Invalid input data')
+    @api.response(403, 'Admin privileges required')
+    @jwt_required()
     def put(self, amenity_id):
+        """Update an amenity- Admins only."""
+        jwt_data = get_jwt()
+        is_admin = jwt_data.get("is_admin", False)
+
+        if not is_admin:
+            return {'error': 'Admin privileges required'}, 403
+
         amenity_data = api.payload
         amenity = facade.get_amenity(amenity_id)
         if not amenity:
             return {'error': 'Amenity not found'}, 404
+
         try:
             facade.update_amenity(amenity_id, amenity_data)
             return {"message": "Amenity updated successfully"}, 200
