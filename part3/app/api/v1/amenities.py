@@ -8,12 +8,10 @@ amenity_model = api.model('Amenity', {
     'name': fields.String(required=True, description='Name of the amenity')
 })
 
+# -------- Helper --------
 def admin_required():
-    """Utility function to check if the current user is admin"""
     claims = get_jwt()
-    if not claims.get('is_admin'):
-        return False
-    return True
+    return claims.get('is_admin', False)
 
 @api.route('/')
 class AmenityList(Resource):

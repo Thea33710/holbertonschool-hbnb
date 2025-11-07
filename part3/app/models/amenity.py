@@ -1,23 +1,17 @@
 from .basemodel import BaseModel
+import uuid
+import re
+from app import db
 
 class Amenity(BaseModel):
+    __tablename__ = 'amenities'
+
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    name = db.Column(db.String(50), nullable=False)
+
     def __init__(self, name):
         super().__init__()
         self.name = name
-
-    # ----------------- Name -----------------
-    @property
-    def name(self):
-        return self.__name
-
-    @name.setter
-    def name(self, value):
-        if not isinstance(value, str):
-            raise TypeError("Name must be a string")
-        if not value:
-            raise ValueError("Name cannot be empty")
-        super().is_max_length('name', value, 50)  # utiliser le nom de l'attribut
-        self.__name = value
 
     # ----------------- Update -----------------
     def update(self, data):

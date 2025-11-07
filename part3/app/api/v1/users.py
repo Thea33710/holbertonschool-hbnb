@@ -59,8 +59,7 @@ class AdminUserModify(Resource):
     @jwt_required()
     def put(self, user_id):
         """Admin can modify any user"""
-        claims = get_jwt()
-        if not claims.get('is_admin'):
+        if not admin_required:
             return {'error': 'Admin privileges required'}, 403
 
         user = facade.get_user(user_id)
