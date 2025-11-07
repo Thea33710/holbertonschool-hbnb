@@ -129,7 +129,7 @@ class UserResource(Resource):
         data.pop('email', None)
         data.pop('password', None)
 
-        if admin and 'is_admin' in data:
+        if is_admin and 'is_admin' in data:
             user.is_admin = data['is_admin']
 
         try:

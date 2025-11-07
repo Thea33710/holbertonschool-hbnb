@@ -26,7 +26,7 @@ def is_admin():
 
 def validate_place_data(data):
     """Validate required fields and types"""
-    required_fields = ['title', 'price', 'latitude', 'longitude', 'amenities']
+    required_fields = ['title', 'price', 'latitude', 'longitude']
     for field in required_fields:
         if field not in data:
             raise ValueError(f"Missing field: {field}")
@@ -42,8 +42,11 @@ def validate_place_data(data):
         raise ValueError("Latitude must be float between -90 and 90")
     if not isinstance(data['longitude'], float) or not -180 <= data['longitude'] <= 180:
         raise ValueError("Longitude must be float between -180 and 180")
-    if not isinstance(data['amenities'], list):
-        raise TypeError("Amenities must be a list of IDs")
+    if 'amenities' in data:
+        if not isinstance(data['amenities'], list):
+            raise TypeError("Amenities must be a list of IDs")
+    else:
+        data['amenities'] = []
 
 # ----- List & Create Places -----
 @places_api.route('/')
@@ -71,7 +74,7 @@ class PlaceList(Resource):
                 return {'error': f"Amenity {a_id} not found"}, 400
             amenities.append(amenity)
         place_data['amenities'] = amenities
-        place_data['owner'] = user
+        place_data['owner_id'] = user.id
 
         try:
             new_place = facade.create_place(place_data)

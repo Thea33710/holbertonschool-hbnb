@@ -352,7 +352,7 @@ def test_10_user_create_place():
         "longitude": -122.4194
     }
     
-    success, response = make_request("POST", "/", data, 
+    success, response = make_request("POST", "/places", data, 
                                      token=user_token, expected_status=201)
     
     if success and response:
@@ -384,7 +384,7 @@ def test_11_admin_modify_user_place():
         "price": 150
     }
     
-    success, response = make_request("PUT", f"/{place_id}", 
+    success, response = make_request("PUT", f"/places/{place_id}", 
                                      data, token=admin_token)
     
     if success:
