@@ -1,5 +1,5 @@
 from app import db, bcrypt
-from .base_model import BaseModel
+from .basemodel import BaseModel
 from sqlalchemy.orm import relationship
 import re
 
