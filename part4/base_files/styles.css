@@ -5,25 +5,37 @@
   font-family: Arial, sans-serif;
 }
 
-html {
-  scroll-behavior: smooth;
-  font-family: Arial, sans-serif;
+body, html {
+  height: 100%;
+  margin: 0;
 }
 
 body {
-  margin: 0;
-  padding: 0;
-  background-color: #fafafa;
+  background-color: #f4f4f4;
   color: #333;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
 }
 
 header {
-  background-color: #333;
-  color: #fff;
   padding: 1rem;
+}
+
+header img.logo {
+  height: 40px;
+  vertical-align: middle;
+}
+
+header,
+footer {
+  background-color: #ca8637;
+  color: white;
+}
+
+
+footer {
+  text-align: center;
+  padding: 10px 20px;
 }
 
 nav a {
@@ -39,54 +51,32 @@ main {
   font-weight: bold;
 }
 
-h2, h3 {
+h2 {
+  font-size: 2.5rem;
+  padding: 1rem;
+}
+
+h3 {
   font-size: 1.8rem;
   padding: 1rem;
 }
 
-footer {
-  text-align: center;
-  font-size: 14px;
-  padding: 15px;
-}
-
-header,
-footer {
-  background-color: #ca8637;
-  color: white;
-  padding: 10px 20px;
-}
-
-header img.logo {
-  height: 40px;
-  vertical-align: middle;
-}
-
-nav a {
-  color: white;
-  text-decoration: none;
-  margin-right: 15px;
-  font-weight: bold;
-}
-
-.login-button {
-  float: right;
-  background-color: #007acc;
-  color: white;
-  padding: 8px 12px;
-  border-radius: 5px;
-  text-decoration: none;
-}
-
 /* Container pour les cartes */
 #places-list {
+  width: 100%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* centre exact */
   display: flex;
-  flex-wrap: center;
+  flex-wrap: wrap;
   justify-content: center;
+  gap: 20px;
 }
 
 /* Cards */
-.place-card {
+.place-card,
+.review-card {
   background-color: white;
   border: 1px solid #ddd;
   border-radius: 10px;
@@ -95,45 +85,22 @@ nav a {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   width: 450px;
   height: 300px;
-  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
+  justify-content: space-between;
   align-items: center;
   text-align: center;
 }
 
-.place .place-card,
-.review-card {
-  background-color: white;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  margin: 20px;
-  padding: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  height: 100%;
-  width: 100%;
-  box-sizing: border-box;
-  justify-content: space-around;
-  align-items: center;
-  text-align: center;
+/* Button */
+.login-button {
+  float: right;
+  background-color: #007acc;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 5px;
+  text-decoration: none;
 }
-
-.review-card {
-  background-color: white;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  margin: 20px;
-  padding: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  height: 100%;
-  width: 100%;
-  box-sizing: border-box;
-  justify-content: space-around;
-  align-items: center;
-  text-align: left;
-}
-
 
 .details-button {
   background-color: #007acc;
