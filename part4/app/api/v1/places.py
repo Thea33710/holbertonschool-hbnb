@@ -94,7 +94,7 @@ class PlaceResource(Resource):
     @api.doc(security='apikey')
     @jwt_required()
     def delete(self, place_id):
-        """Update a place's information"""
+        """Delete a place's information"""
         current_user = get_jwt_identity()
         place = facade.get_place(place_id)
         admin = get_jwt()['is_admin']
