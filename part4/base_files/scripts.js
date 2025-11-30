@@ -1,23 +1,12 @@
-/*------------------------------------------*/
 /*--------===> GESTION DU L'API <===------- */
-/*------------------------------------------*/
-
 const API_BASE_URL = 'http://localhost:5000/api/v1';
 const API_LOGIN_ENDPOINT = `${API_BASE_URL}/auth/login`;
 
-/*------------------------------------------*/
 /*----===> Chargement de la page <===------ */
-/*------------------------------------------*/
-
 document.addEventListener('DOMContentLoaded', async () => {
-    console.log('Site chargé avec succès!');
-    const currentPage = window.location.pathname.split('/').pop(); // récupère "index.html" ou "place.html"
+    const currentPage = window.location.pathname.split('/').pop();
 
-    /*------------------------------------------*/
     /*---===> GESTION PAGE INDEX.HTML <===-----*/
-    /*------------------------------------------*/
-
-    const placesList = document.getElementById('places-list');
     const priceFilter = document.getElementById('price-filter');
     
     if (currentPage === 'index.html') {
@@ -30,72 +19,57 @@ document.addEventListener('DOMContentLoaded', async () => {
             priceFilter.addEventListener('change', filterPlacesByPrice);
         }
 
-        // Fonction de redirection pour les boutons
         window.viewPlaceDetails = (placeId) => {
             window.location.href = `place.html?place_id=${encodeURIComponent(placeId)}`;
         };
     }
 
-    /*---------------------------------------------*/
     /*--------===> GESTION PLACE.HTML <===------- */
-    /*-------------------------------------------*/
-
     if (currentPage === 'place.html') {
         const placeId = new URLSearchParams(window.location.search).get('place_id');
         if (placeId) loadPlaceDetails(placeId);
     }
 
-    /*------------------------------------------*/
     /*--------===> GESTION DU LOGIN <===------- */
-    /*------------------------------------------*/
-    
-    // Vérifie si on est sur la page login
     const loginForm = document.getElementById('login-form');
     
     if (loginForm) {
-        // Écoute la soumission du formulaire
+        // Soumission du formulaire
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // Récupère les valeurs des champs
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             
-            // Validation simple
             if (!email || !password) {
                 alert('Merci de remplir tous les champs !');
                 return;
             }
             
-            // Validation du format email
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email)) {
                 alert('Merci d\'entrer une adresse email valide !');
                 return;
             }
             
-            // Désactiver le bouton pendant la requête
             const submitButton = loginForm.querySelector('button[type="submit"]');
             const originalText = submitButton.textContent;
             submitButton.textContent = 'Connexion en cours...';
             submitButton.disabled = true;
 
             try {
-                //Appel à l'API pour test la connexion
                 const success = await loginUser(email, password);
 
                 if (success) {
-                    showSuccess('Connexion réussie! Redirection...');
-                    //Redirection vers index.html
+                    show('Connexion réussie! Redirection...');
                     setTimeout(() => {
                         window.location.href = 'index.html';
                     }, 1000);
                 }
             } catch (error) {
                 console.error('Erreur lors de la connexion:', error);
-                showError('Une erreur est survenue. Veuillez réessayer.');
+                show('Une erreur est survenue. Veuillez réessayer.');
             } finally {
-                // Permet de réactiver le bouton
                 submitButton.textContent = originalText;
                 submitButton.disabled = false;
             }
@@ -103,48 +77,36 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    /*------------------------------------------*/
     /*-----===> FORMULAIRE ADD REVIEW <===-----*/
-    /*------------------------------------------*/
-
     const reviewForm = document.getElementById('review-form');
 
     if (reviewForm) {
-        // Crée dynamiquement un message flottant de confirmation
         const floating = document.createElement('div');
         floating.id = 'floating-confirmation';
-        floating.textContent = "Merci ! Votre avis a été ajouté.";
+        floating.textContent = "Votre avis a été ajouté.";
         floating.style.cssText = `
             position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #28a745;
+            top: 50px;
+            right: 100px;
+            background: #559c65ff;
             color: white;
             padding: 15px 25px;
             border-radius: 10px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             opacity: 0;
-            transform: translateY(-20px);
-            transition: opacity 0.4s, transform 0.4s;
-            z-index: 9999;
         `;
         document.body.appendChild(floating);
 
-        // Fonction pour afficher le message
         const showMessage = () => {
             floating.style.opacity = '1';
-            floating.style.transform = 'translateY(0)';
             setTimeout(() => {
                 floating.style.opacity = '0';
-                floating.style.transform = 'translateY(-20px)';
             }, 3000);
         };
 
         reviewForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            // Affiche le message
             showMessage();
-            // Réinitialise le formulaire
             reviewForm.reset();
         });
     }
@@ -152,7 +114,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 /**
  * Redirige vers place.html et affiche les détails + reviews
- * @param {string} placeId 
  */
 async function loadPlaceDetails(placeId) {
     const placeDetailsContainer = document.getElementById('place-details');
@@ -177,7 +138,6 @@ async function loadPlaceDetails(placeId) {
 
         const place = await response.json();
 
-        // Affichage des détails
         placeDetailsContainer.innerHTML = `
             <h2>${place.title || place.name}</h2>
             <p>${place.description}</p>
@@ -199,9 +159,7 @@ async function loadPlaceDetails(placeId) {
         }
 
         const reviews = await reviewsResponse.json();
-        console.log('Reviews récupérées: ', reviews);
 
-        // Affichage des reviews
         reviewsContainer.innerHTML = `<h3>Avis des utilisateurs</h3><ul id="reviews-list" style="padding-left:20px;"></ul>`;
         const reviewsList = document.getElementById('reviews-list');
 
@@ -221,10 +179,7 @@ async function loadPlaceDetails(placeId) {
     }
 }
 
-/*--------------------------------------------------------*/
 /*-===> Fonction pour récupérer le nom d'utilisateur <==-*/
-/*------------------------------------------------------*/
-
 async function getUserName(user_id) {
     try {
         const response = await fetch(`${API_BASE_URL}/users/${user_id}`, {
@@ -240,19 +195,12 @@ async function getUserName(user_id) {
     }
 }
 
-/*-------------------------------------------*/
 /*-===> Fonction de la connexion à l'Api <==-*/
-/*-------------------------------------------*/
-
 /**
  * Envoie les identifiants à l'API backend
- * @param {string} email - Email de l'utilisateur
- * @param {string} password - Mot de passe de l'utilisateur
- * @returns {Promise<boolean>} - true si connexion réussie, false sinon
  */
 async function loginUser(email, password) {
     try {
-        // Envoyer la requête POST à l'API
         const response = await fetch(API_LOGIN_ENDPOINT, {
             method: 'POST',
             headers: {
@@ -264,23 +212,18 @@ async function loginUser(email, password) {
             })
         });
 
-        // Vérifier si la requête a réussi
         if (response.ok) {
-            // Récupérer les données JSON
             const data = await response.json();
             
-            // Vérifier que le token existe
             if (data.access_token) {
-                // Sauvegarder le token dans un cookie
                 saveTokenToCookie(data.access_token);
                 return true;
             } else {
                 console.error('Token manquant dans la réponse');
-                showError('Erreur serveur: token manquant');
+                show('Erreur serveur: token manquant');
                 return false;
             }
         } else {
-            // Connexion échouée - essayer de récupérer le message d'erreur
             let errorMessage = 'Email ou mot de passe incorrect';
             
             try {
@@ -295,7 +238,7 @@ async function loginUser(email, password) {
             }
             
             console.error('Connexion échouée: ', errorMessage);
-            showError(errorMessage);
+            show(errorMessage);
             return false;
         }
     } catch (error) {
@@ -304,11 +247,7 @@ async function loginUser(email, password) {
     }
 }
 
-
-/*============================================*/
 /*===== GESTION DE LA PAGE INDEX =============*/
-/*============================================*/
-
 /**
  * Vérifie l'authentification et affiche/cache le bouton login
  */
@@ -343,11 +282,9 @@ function loadPriceFilterOptions() {
         { value: '50', text: '50€' },
         { value: '100', text: '100€' }
     ];
-    
-    // Vider le select
+
     priceFilter.innerHTML = '';
     
-    // Ajouter les options
     options.forEach(opt => {
         const option = document.createElement('option');
         option.value = opt.value;
@@ -376,28 +313,21 @@ async function fetchPlaces() {
             displayPlaces(places);
         } else {
             console.error('Erreur lors de la récupération des places: ', response.status);
-            showError('Impossible de charger les logements');
+            show('Impossible de charger les logements');
         }
     } catch (error) {
         console.error('Erreur réseau: ', error);
-        showError('Erreur de connexion au serveur');
+        show('Erreur de connexion au serveur');
     }
 }
 
 /**
  * Affiche les places dans le DOM
- * @param {Array} places - Liste des places à afficher
  */
 function displayPlaces(places) {
     const placesList = document.getElementById('places-list');
     if (!placesList) return;
 
-    if (places.length === 0) {
-        placesList.innerHTML = '<p style="text-align: center; color: #666;">Aucun logement disponible pour le moment.</p>';
-        return;
-    }
-    
-    // Créer une carte pour chaque place
     places.forEach(place => {
         const placeCard = createPlaceCard(place);
         placesList.appendChild(placeCard);
@@ -406,8 +336,6 @@ function displayPlaces(places) {
 
 /**
  * Crée une carte HTML pour une place avec gestion intelligente des images
- * @param {Object} place - Données de la place
- * @returns {HTMLElement} - Element div de la carte
  */
 function createPlaceCard(place) {
     const card = document.createElement('div');
@@ -432,7 +360,6 @@ function filterPlacesByPrice() {
     const priceFilter = document.getElementById('price-filter');
     const selectedPrice = priceFilter.value;
 
-    // Récupérer toutes les cartes de places
     const placeCards = document.querySelectorAll('.place-card');
     
     placeCards.forEach(card => {
@@ -453,7 +380,6 @@ function filterPlacesByPrice() {
 
 /**
  * Redirige vers la page de détails d'une place
- * @param {string} placeId - ID de la place
  */
 function viewPlaceDetails(placeId) {
     const token = getCookie('token');
@@ -471,43 +397,26 @@ function viewPlaceDetails(placeId) {
         if (!res.ok) throw new Error('Place non trouvée');
         return res.json();
     })
-    .then(place => {
-        container.innerHTML = `
-            <h2>${place.title || place.name}</h2>
-            <p>${place.description}</p>
-            <p><strong>Prix:</strong> ${place.price}€</p>
-            <p><strong>Localisation:</strong> ${place.latitude}, ${place.longitude}</p>
-        `;
-    })
     .catch(err => {
         container.innerHTML = `<p style="color:red;">Erreur : ${err.message}</p>`;
     });
 }
 
-
-/*============================================*/
 /*===== GESTION DES COOKIES ==================*/
-/*============================================*/
-
 /**
  * Sauvegarde le JWT token dans un cookie
- * @param {string} token - Le JWT token à sauvegarder
  */
 function saveTokenToCookie(token) {
-    // Créer un cookie qui expire dans 7 jours
     const expirationDays = 7;
     const date = new Date();
     date.setTime(date.getTime() + (expirationDays * 24 * 60 * 60 * 1000));
     const expires = `expires=${date.toUTCString()}`;
-    
-    // Sauvegarder le cookie
+
     document.cookie = `token=${token}; ${expires}; path=/; SameSite=Lax`;
 }
 
 /**
  * Récupère un cookie par son nom
- * @param {string} name - Le nom du cookie
- * @returns {string|null} - La valeur du cookie ou null
  */
 function getCookie(name) {
     const value = `; ${document.cookie}`;
@@ -520,7 +429,6 @@ function getCookie(name) {
 
 /**
  * Vérifie si l'utilisateur est connecté
- * @returns {boolean} - true si connecté, false sinon
  */
 function isUserLoggedIn() {
     return getCookie('token') !== null;
@@ -534,59 +442,10 @@ function logoutUser() {
     window.location.href = 'login.html';
 }
 
-/*============================================*/
 /*===== AFFICHAGE DES MESSAGES ===============*/
-/*============================================*/
-
 /**
  * Affiche un message d'erreur
- * @param {string} message - Le message à afficher
  */
-function showError(message) {
-    // Utilise alert pour l'instant (simple)
-    alert('❌ ' + message);
-    
-    // Alternative : afficher dans un élément HTML
-    // Si tu as un <div id="error-message"></div> dans ton HTML
-    const errorElement = document.getElementById('error-message');
-    if (errorElement) {
-        errorElement.textContent = message;
-        errorElement.style.display = 'block';
-        errorElement.style.color = 'red';
-        errorElement.style.padding = '10px';
-        errorElement.style.marginTop = '10px';
-        errorElement.style.backgroundColor = '#ffe0e0';
-        errorElement.style.borderRadius = '5px';
-        
-        // Cacher après 5 secondes
-        setTimeout(() => {
-            errorElement.style.display = 'none';
-        }, 5000);
-    }
-}
-
-/**
- * Affiche un message de succès
- * @param {string} message - Le message à afficher
- */
-function showSuccess(message) {
-    // Utilise alert pour l'instant
-    alert('✅ ' + message);
-    
-    // Alternative : afficher dans un élément HTML
-    const successElement = document.getElementById('success-message');
-    if (successElement) {
-        successElement.textContent = message;
-        successElement.style.display = 'block';
-        successElement.style.color = 'green';
-        successElement.style.padding = '10px';
-        successElement.style.marginTop = '10px';
-        successElement.style.backgroundColor = '#e0ffe0';
-        successElement.style.borderRadius = '5px';
-        
-        // Cacher après 3 secondes
-        setTimeout(() => {
-            successElement.style.display = 'none';
-        }, 3000);
-    }
+function show(message) {
+    alert(message);
 }
