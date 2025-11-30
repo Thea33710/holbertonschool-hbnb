@@ -58,14 +58,17 @@ class Place(BaseModel):
     def add_review(self, review):
         """Add a review to the place."""
         self.reviews.append(review)
+        self.save()
     
     def delete_review(self, review):
         """Add an amenity to the place."""
         self.reviews.remove(review)
+        self.save()
 
     def add_amenity(self, amenity):
         """Add an amenity to the place."""
         self.amenities.append(amenity)
+        self.save()
 
     def to_dict(self):
         return {
