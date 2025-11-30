@@ -61,14 +61,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const success = await loginUser(email, password);
 
                 if (success) {
-                    show('Connexion réussie! Redirection...');
+                    alert('Connexion réussie! Redirection...');
                     setTimeout(() => {
                         window.location.href = 'index.html';
                     }, 1000);
                 }
             } catch (error) {
                 console.error('Erreur lors de la connexion:', error);
-                show('Une erreur est survenue. Veuillez réessayer.');
+                alert('Une erreur est survenue. Veuillez réessayer.');
             } finally {
                 submitButton.textContent = originalText;
                 submitButton.disabled = false;
@@ -81,32 +81,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const reviewForm = document.getElementById('review-form');
 
     if (reviewForm) {
-        const floating = document.createElement('div');
-        floating.id = 'floating-confirmation';
-        floating.textContent = "Votre avis a été ajouté.";
-        floating.style.cssText = `
-            position: fixed;
-            top: 50px;
-            right: 100px;
-            background: #559c65ff;
-            color: white;
-            padding: 15px 25px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            opacity: 0;
-        `;
-        document.body.appendChild(floating);
-
-        const showMessage = () => {
-            floating.style.opacity = '1';
-            setTimeout(() => {
-                floating.style.opacity = '0';
-            }, 3000);
-        };
-
         reviewForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            showMessage();
+            alert("Votre avis a été ajouté.");
             reviewForm.reset();
         });
     }
@@ -220,7 +197,7 @@ async function loginUser(email, password) {
                 return true;
             } else {
                 console.error('Token manquant dans la réponse');
-                show('Erreur serveur: token manquant');
+                alert('Erreur serveur: token manquant');
                 return false;
             }
         } else {
@@ -238,7 +215,7 @@ async function loginUser(email, password) {
             }
             
             console.error('Connexion échouée: ', errorMessage);
-            show(errorMessage);
+            alert(errorMessage);
             return false;
         }
     } catch (error) {
@@ -313,11 +290,11 @@ async function fetchPlaces() {
             displayPlaces(places);
         } else {
             console.error('Erreur lors de la récupération des places: ', response.status);
-            show('Impossible de charger les logements');
+            alert('Impossible de charger les logements');
         }
     } catch (error) {
         console.error('Erreur réseau: ', error);
-        show('Erreur de connexion au serveur');
+        alert('Erreur de connexion au serveur');
     }
 }
 
@@ -442,10 +419,3 @@ function logoutUser() {
     window.location.href = 'login.html';
 }
 
-/*===== AFFICHAGE DES MESSAGES ===============*/
-/**
- * Affiche un message d'erreur
- */
-function show(message) {
-    alert(message);
-}
