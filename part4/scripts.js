@@ -1,3 +1,6 @@
+/*--------===> GESTION DU L'API <===------- */
+const API_BASE_URL = 'http://localhost:5000/api/v1';
+const API_LOGIN_ENDPOINT = `${API_BASE_URL}/auth/login`;
 
 /* 
   scripts.js - Handles login, index page (places), place details, reviews, filtering, and review submission
@@ -47,6 +50,7 @@ const samplePlaceData = {
   }
 };
 
+
 // ------------------------------
 // UTILITY FUNCTIONS
 // ------------------------------
@@ -59,30 +63,58 @@ function getCookie(name) {
 
 let userLoggedIn = getCookie("token") !== null;
 
-// ------------------------------
-// LOGIN FUNCTIONS
-// ------------------------------
+/-===> Fonction de la connexion à l'Api <==-/
+/**
+ 
+Envoie les identifiants à l'API backend*/
 async function loginUser(email, password) {
-  try {
-    const response = await fetch('https://your-api-url/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
+    try {
+        const response = await fetch(API_LOGIN_ENDPOINT, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email: email,
+                password: password
+            })
+        });
 
-    if (response.ok) {
-      const data = await response.json();
-      document.cookie = `token=${data.access_token}; path=/; max-age=${60*60*24}`;
-      userLoggedIn = true;
-      window.location.href = 'index.html';
-    } else {
-      const errorData = await response.json();
-      alert('Login failed: ' + (errorData.message || response.statusText));
+        if (response.ok) {
+            const data = await response.json();
+
+            if (data.access_token) {
+                saveTokenToCookie(data.access_token);
+                return true;
+            } else {
+                console.error('Token manquant dans la réponse');
+                show('Erreur serveur: token manquant');
+                return false;
+            }
+        } else {
+            let errorMessage = 'Email ou mot de passe incorrect';
+
+            try {
+                const errorData = await response.json();
+                if (errorData.message) {
+                    errorMessage = errorData.message;
+                } else if (errorData.error) {
+                    errorMessage = errorData.error;
+                }
+            } catch (e) {
+                console.error('Impossible de parser le message d erreur JSON: ', e);
+            }
+
+            console.error('Connexion échouée: ', errorMessage);
+            show(errorMessage);
+            return false;
+        }
+    } catch (error) {
+        console.error('Erreur réseau: ', error);
+        return false;
     }
-  } catch (error) {
-    alert('Login failed: ' + error.message);
-  }
 }
+
 
 function updateLoginButton() {
   const loginButton = document.querySelector('.login-button');
@@ -107,7 +139,7 @@ async function fetchPlaces(token) {
     const headers = { 'Content-Type': 'application/json' };
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
-    const response = await fetch('https://your-api-url/places', { method: 'GET', headers });
+    const response = await fetch('http://127.0.0.1:5000/api/v1/places', { method: 'GET', headers });
 
     let placesData = samplePlaces; // fallback
     if (response.ok) {
@@ -173,7 +205,7 @@ async function fetchPlaceDetails(token, placeId) {
     const headers = { 'Content-Type': 'application/json' };
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
-    const response = await fetch(`https://your-api-url/places/${placeId}`, { method: 'GET', headers });
+    const response = await fetch(`http://127.0.0.1:5000/api/v1/places/${placeId}`, { method: 'GET', headers });
     let place = samplePlaceData[placeId] || samplePlaceData[1];
 
     if (response.ok) {
@@ -251,7 +283,7 @@ function displayPlaceDetails(place) {
 // ------------------------------
 async function submitReview(token, placeId, comment, rating) {
   try {
-    const response = await fetch(`https://your-api-url/places/${placeId}/reviews`, {
+    const response = await fetch(`http://127.0.0.1:5000/api/v1/places/${placeId}/reviews`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
